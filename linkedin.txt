@@ -1,9 +1,9 @@
-! Title: LinkedIn — Feed declutter (v0)
+! Title: LinkedIn — Feed declutter (v0.1)
 ! Description: Hides Promoted/Suggested posts, the right-rail banner ad, the
 !  "Add to your feed" follow widget, and the "Try Premium" upsell on the main
 !  LinkedIn feed.
 ! Last modified: 2026-05-15
-! Expires: 7 days
+! Expires: 1 hour
 !
 ! ----------------------------------------------------------------------------
 ! Selector strategy
@@ -36,26 +36,24 @@ linkedin.com##iframe[componentkey="MainFeedDesktopNav_feed_ad"]:upward(2)
 ! ============================================================================
 ! 2. Sponsored ("Promoted") posts in the main feed
 ! ----------------------------------------------------------------------------
-! Every feed entry sits inside [data-testid="mainFeed"] as a
-! <div role="listitem">. Sponsored entries render a visible badge:
-!   <p><span>Promoted</span></p>
-! The :has-text(/^Promoted$/) regex matches only when the element's text is
-! exactly "Promoted", so an organic post containing the word "promoted" in
+! Every feed entry is a <div role="listitem">. Sponsored entries render a
+! visible badge: <p componentkey="…"><span>Promoted</span></p> — the span
+! is a direct child of the <p>, and its textContent is exactly "Promoted".
+! The :has-text(/^Promoted$/) regex matches only when the span text equals
+! "Promoted" exactly, so an organic post containing the word "promoted" in
 ! its body (e.g. "I just got promoted!") will NOT be hidden.
 ! ============================================================================
-linkedin.com##div[data-testid="mainFeed"] div[role="listitem"]:has(span:has-text(/^Promoted$/))
+linkedin.com##div[role="listitem"]:has(> div p > span:has-text(/^Promoted$/))
 
 
 ! ============================================================================
 ! 3. Algorithm-injected ("Suggested") posts in the main feed
 ! ----------------------------------------------------------------------------
 ! Same anchor pattern as #2 — LinkedIn uses parallel markup for the
-! "Suggested" badge on injected, non-followed content.
-! NOTE: the sample snapshot we built this list from did not contain a
-! Suggested post, so the selector is a best-guess. If it doesn't fire on a
-! real "Suggested" entry, share a snapshot containing one and we'll adjust.
+! "Suggested" badge on injected, non-followed content, confirmed against a
+! live snippet.
 ! ============================================================================
-linkedin.com##div[data-testid="mainFeed"] div[role="listitem"]:has(span:has-text(/^Suggested$/))
+linkedin.com##div[role="listitem"]:has(> div p > span:has-text(/^Suggested$/))
 
 
 ! ============================================================================
