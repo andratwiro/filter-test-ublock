@@ -1,0 +1,88 @@
+! Title: LinkedIn — Feed declutter (v0)
+! Description: Hides Promoted/Suggested posts, the right-rail banner ad, the
+!  "Add to your feed" follow widget, and the "Try Premium" upsell on the main
+!  LinkedIn feed.
+! Last modified: 2026-05-15
+! Expires: 7 days
+!
+! ----------------------------------------------------------------------------
+! Selector strategy
+! ----------------------------------------------------------------------------
+! LinkedIn's cosmetic class names are hashed atomic CSS (e.g. _905c4fe2) and
+! rotate per release, so this list never anchors on a class. Stable hooks used:
+!   - data-testid           (e.g. "mainFeed")
+!   - aria-label            (e.g. "Primary content", "Sidebar", "Aside")
+!   - role                  (e.g. "listitem", "menu", "button")
+!   - componentkey          (only when its value is semantic, e.g.
+!                            "MainFeedDesktopNav_feed_ad" — NOT when it's a
+!                            UUID or base64-URN, which rotate per render/post)
+!   - visible text via :has-text()
+!
+! Each block below explains its anchor so a future redesign only forces a
+! local rewrite, not a full audit.
+
+
+! ============================================================================
+! 1. Right-rail banner ad (300x250 iframe slot)
+! ----------------------------------------------------------------------------
+! The iframe carries a stable, semantic componentkey. :upward(2) climbs past
+! the iframe's immediate wrappers to also remove any padding/chrome the slot
+! adds. If hiding too much in the right rail, drop :upward(2) and just hide
+! the iframe itself.
+! ============================================================================
+linkedin.com##iframe[componentkey="MainFeedDesktopNav_feed_ad"]:upward(2)
+
+
+! ============================================================================
+! 2. Sponsored ("Promoted") posts in the main feed
+! ----------------------------------------------------------------------------
+! Every feed entry sits inside [data-testid="mainFeed"] as a
+! <div role="listitem">. Sponsored entries render a visible badge:
+!   <p><span>Promoted</span></p>
+! The :has-text(/^Promoted$/) regex matches only when the element's text is
+! exactly "Promoted", so an organic post containing the word "promoted" in
+! its body (e.g. "I just got promoted!") will NOT be hidden.
+! ============================================================================
+linkedin.com##div[data-testid="mainFeed"] div[role="listitem"]:has(span:has-text(/^Promoted$/))
+
+
+! ============================================================================
+! 3. Algorithm-injected ("Suggested") posts in the main feed
+! ----------------------------------------------------------------------------
+! Same anchor pattern as #2 — LinkedIn uses parallel markup for the
+! "Suggested" badge on injected, non-followed content.
+! NOTE: the sample snapshot we built this list from did not contain a
+! Suggested post, so the selector is a best-guess. If it doesn't fire on a
+! real "Suggested" entry, share a snapshot containing one and we'll adjust.
+! ============================================================================
+linkedin.com##div[data-testid="mainFeed"] div[role="listitem"]:has(span:has-text(/^Suggested$/))
+
+
+! ============================================================================
+! 4. "Add to your feed" widget (right-rail follow recommendations)
+! ----------------------------------------------------------------------------
+! Right-rail card whose heading text is exactly "Add to your feed". Hides the
+! immediate-child card under <aside aria-label="Aside">.
+! ============================================================================
+linkedin.com##aside[aria-label="Aside"] > div:has(p:has-text(/^Add to your feed$/))
+
+
+! ============================================================================
+! 5. "Try Premium Page" / Premium upsell (left sidebar)
+! ----------------------------------------------------------------------------
+! Renders inside the left nav as a <div role="button"> menu item whose label
+! is a <strong>Try Premium ...</strong>. Matched as a prefix so variants like
+! "Try Premium for free" or "Try Premium Page" all hide.
+! ============================================================================
+linkedin.com##aside[aria-label="Sidebar"] div[role="button"]:has(strong:has-text(/^Try Premium/))
+
+
+! ----------------------------------------------------------------------------
+! Notes on what's NOT in this v0
+! ----------------------------------------------------------------------------
+! - "Why am I seeing this ad?" lives inside a <dialog> that's only rendered
+!   when the user clicks an ad's overflow menu — not visible by default, so
+!   no filter needed. Hiding the banner ad in #1 makes the dialog moot.
+! - "People you may know", LinkedIn News rail, sponsored job cards,
+!   post-engagement overlay, and stories were not present in the sample.
+!   Capture a feed scrolled further down and we'll add coverage.
