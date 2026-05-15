@@ -1,7 +1,7 @@
-! Title: LinkedIn — Feed declutter (v0.3)
-! Description: Hides Promoted/Suggested posts, LinkedIn Learning course cards,
-!  the right-rail banner ad, the "Add to your feed" follow widget, and the
-!  "Try Premium" upsell on the main LinkedIn feed.
+! Title: LinkedIn — Feed declutter (v0.4)
+! Description: Hides Promoted/Suggested/Recommended-for-you posts, LinkedIn
+!  Learning course cards, the right-rail banner ad, the "Add to your feed"
+!  follow widget, and the "Try Premium" upsell on the main LinkedIn feed.
 ! Last modified: 2026-05-15
 ! Expires: 1 hour
 !
@@ -66,7 +66,19 @@ linkedin.com##span:has-text(/^Popular course on LinkedIn Learning$/):upward(div[
 
 
 ! ============================================================================
-! 5. "Add to your feed" widget (right-rail follow recommendations)
+! 5. "Recommended for you" follow-suggestion blocks in the main feed
+! ----------------------------------------------------------------------------
+! Block of company/school follow recommendations with the badge
+! <span>Recommended for you</span>. The outer wrapper is a feed
+! <div role="listitem"> containing inner listitems (one per recommendation),
+! but the badge span is only inside the outer wrapper — so :upward() walks
+! up to the outer listitem and hides the whole block.
+! ============================================================================
+linkedin.com##span:has-text(/^Recommended for you$/):upward(div[role="listitem"])
+
+
+! ============================================================================
+! 6. "Add to your feed" widget (right-rail follow recommendations)
 ! ----------------------------------------------------------------------------
 ! Right-rail card whose heading text is exactly "Add to your feed". Hides the
 ! immediate-child card under <aside aria-label="Aside">.
@@ -75,7 +87,7 @@ linkedin.com##aside[aria-label="Aside"] > div:has(p:has-text(/^Add to your feed$
 
 
 ! ============================================================================
-! 6. "Try Premium Page" / Premium upsell (left sidebar)
+! 7. "Try Premium Page" / Premium upsell (left sidebar)
 ! ----------------------------------------------------------------------------
 ! Renders inside the left nav as a <div role="button"> menu item whose label
 ! is a <strong>Try Premium ...</strong>. Matched as a prefix so variants like
