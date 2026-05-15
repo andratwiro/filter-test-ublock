@@ -1,4 +1,4 @@
-! Title: LinkedIn — Feed declutter (v0.1)
+! Title: LinkedIn — Feed declutter (v0.2)
 ! Description: Hides Promoted/Suggested posts, the right-rail banner ad, the
 !  "Add to your feed" follow widget, and the "Try Premium" upsell on the main
 !  LinkedIn feed.
@@ -36,24 +36,23 @@ linkedin.com##iframe[componentkey="MainFeedDesktopNav_feed_ad"]:upward(2)
 ! ============================================================================
 ! 2. Sponsored ("Promoted") posts in the main feed
 ! ----------------------------------------------------------------------------
-! Every feed entry is a <div role="listitem">. Sponsored entries render a
-! visible badge: <p componentkey="…"><span>Promoted</span></p> — the span
-! is a direct child of the <p>, and its textContent is exactly "Promoted".
-! The :has-text(/^Promoted$/) regex matches only when the span text equals
-! "Promoted" exactly, so an organic post containing the word "promoted" in
-! its body (e.g. "I just got promoted!") will NOT be hidden.
+! Sponsored entries render a visible badge: <p ...><span>Promoted</span></p>
+! inside a feed wrapper <div role="listitem">. We match the span by exact
+! text and climb up to the nearest listitem ancestor with :upward().
+! ^Promoted$ regex ensures organic posts containing the word "promoted" in
+! their body (e.g. "I just got promoted!") are NOT hidden.
 ! ============================================================================
-linkedin.com##div[role="listitem"]:has(> div p > span:has-text(/^Promoted$/))
+linkedin.com##span:has-text(/^Promoted$/):upward(div[role="listitem"])
 
 
 ! ============================================================================
 ! 3. Algorithm-injected ("Suggested") posts in the main feed
 ! ----------------------------------------------------------------------------
 ! Same anchor pattern as #2 — LinkedIn uses parallel markup for the
-! "Suggested" badge on injected, non-followed content, confirmed against a
-! live snippet.
+! "Suggested" badge on algorithm-injected, non-followed content. Verified
+! against a live snippet.
 ! ============================================================================
-linkedin.com##div[role="listitem"]:has(> div p > span:has-text(/^Suggested$/))
+linkedin.com##span:has-text(/^Suggested$/):upward(div[role="listitem"])
 
 
 ! ============================================================================
