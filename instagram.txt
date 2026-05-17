@@ -1,0 +1,30 @@
+! Title: Instagram — Feed declutter (v0)
+! Description: Hides non-friend / algorithmic content on Instagram: inline
+!  Reels carousels, Suggested-for-you posts, and other feed injections.
+!  Built iteratively against real DOM samples.
+! Last modified: 2026-05-17
+! Expires: 1 hour
+!
+! ----------------------------------------------------------------------------
+! Selector strategy
+! ----------------------------------------------------------------------------
+! Instagram (Meta) hashes its cosmetic class names and rotates them often, so
+! this list never anchors on a class. Stable hooks to prefer, in order:
+!   - aria-label            (heavy use on buttons, regions, nav items)
+!   - role                  (e.g. "button", "menuitem", "feed")
+!   - href                  (route paths like /reels/, /explore/ are stable)
+!   - visible text via :has-text()  (badge/section labels)
+!
+! Reality notes (see chat for detail):
+!   - There is NO reliable DOM signal for "post/Reel author is someone I
+!     follow". Follow-status is server-side. Filters here target LABELLED
+!     algorithmic content ("Suggested for you", inline "Reels" sections) and
+!     UI chrome — not arbitrary non-friend posts.
+!   - For unlabelled non-friend feed posts, use Instagram's native
+!     "Following" feed toggle (IG logo / feed dropdown -> Following).
+!   - Expect higher maintenance than the LinkedIn list — Meta rotates markup
+!     aggressively.
+!
+! ----------------------------------------------------------------------------
+! Filters below are added as DOM samples are confirmed. Nothing here yet.
+! ----------------------------------------------------------------------------
