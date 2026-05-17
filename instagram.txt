@@ -1,4 +1,4 @@
-! Title: Instagram — Feed declutter (v0.5)
+! Title: Instagram — Feed declutter (v0.6)
 ! Description: Redacts non-friend / algorithmic content on Instagram (Suggested
 !  posts, Sponsored ads) by painting it black in place, hides the Reels nav
 !  tab, and hides the Explore page's algorithmic grid (search kept). Built
@@ -30,10 +30,12 @@
 !   - Feed injections are NOT removed with display:none. On Instagram's
 !     infinite-scroll feed, removing a post collapses layout mid-scroll,
 !     which fights IG's own scroll/ad-loading JS and causes scroll-jank.
-!   - Instead we use uBO's :style() to paint the post black in place
-!     (filter: brightness(0)) — the <article> keeps its exact size, so
-!     there is zero layout shift. pointer-events:none makes the black block
-!     inert (no accidental taps). The result is a visible "redacted" feed.
+!   - Instead we use uBO's :style() to paint the post black in place — the
+!     <article> keeps its exact size, so there is zero layout shift.
+!     background:#000 fills the whole box (filter:brightness(0) alone only
+!     darkens PAINTED pixels, so transparent gaps would leak the page bg);
+!     filter:brightness(0) then blackens any content on top. pointer-events:
+!     none makes the black block inert. The result is a "redacted" feed.
 !   - UI chrome (the Reels tab) has no scroll context, so it is still
 !     removed normally with display:none.
 !
@@ -53,7 +55,7 @@
 ! :style() paints the whole <article> black (brightness 0) without removing
 ! it — no layout shift, no scroll-jank — and makes it non-interactive.
 ! ============================================================================
-instagram.com##article:has(span:has-text(/^(Suggested (posts?|for you|reels?|content|accounts?)|Sponsored)$/i)):style(filter: brightness(0) !important; pointer-events: none !important)
+instagram.com##article:has(span:has-text(/^(Suggested (posts?|for you|reels?|content|accounts?)|Sponsored)$/i)):style(background: #000 !important; filter: brightness(0) !important; pointer-events: none !important)
 
 
 ! ============================================================================
