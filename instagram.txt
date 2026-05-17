@@ -1,7 +1,7 @@
-! Title: Instagram — Feed declutter (v0.1)
-! Description: Hides non-friend / algorithmic content on Instagram: inline
-!  Reels carousels, Suggested-for-you posts, and other feed injections.
-!  Built iteratively against real DOM samples.
+! Title: Instagram — Feed declutter (v0.2)
+! Description: Hides non-friend / algorithmic content on Instagram: Suggested
+!  posts, the Reels nav tab, and other feed injections. Built iteratively
+!  against real DOM samples.
 ! Last modified: 2026-05-17
 ! Expires: 1 hour
 !
@@ -35,3 +35,16 @@
 ! won't be hidden — only a <span> whose entire text is "Suggested post".
 ! ============================================================================
 instagram.com##article:has(span:has-text(/^Suggested post$/))
+
+
+! ============================================================================
+! 2. "Reels" tab in the left navigation
+! ----------------------------------------------------------------------------
+! The nav item is <a href="/reels/"> (exact path — feed Reel links have an ID
+! after, e.g. /reels/DYXX.../, so this matches only the tab). :upward(3)
+! climbs from the <a> past <div.x1n2onr6> and the <span aria-describedby>
+! to the nav-slot wrapper, so the row is removed cleanly with no empty gap.
+! If a gap remains or a neighbouring item disappears, adjust the :upward
+! number.
+! ============================================================================
+instagram.com##a[href="/reels/"]:upward(3)
