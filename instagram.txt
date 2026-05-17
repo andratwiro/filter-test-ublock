@@ -1,4 +1,4 @@
-! Title: Instagram — Feed declutter (v0)
+! Title: Instagram — Feed declutter (v0.1)
 ! Description: Hides non-friend / algorithmic content on Instagram: inline
 !  Reels carousels, Suggested-for-you posts, and other feed injections.
 !  Built iteratively against real DOM samples.
@@ -25,6 +25,13 @@
 !   - Expect higher maintenance than the LinkedIn list — Meta rotates markup
 !     aggressively.
 !
+! ============================================================================
+! 1. "Suggested post" feed injections
 ! ----------------------------------------------------------------------------
-! Filters below are added as DOM samples are confirmed. Nothing here yet.
-! ----------------------------------------------------------------------------
+! Algorithmic posts/Reels from non-followed accounts. Each feed post is
+! wrapped in <article>; injected ones contain a <span> whose exact text is
+! "Suggested post" (a "Follow" button and /reels/ link are also present).
+! Exact-match regex so a friend's caption that merely mentions the phrase
+! won't be hidden — only a <span> whose entire text is "Suggested post".
+! ============================================================================
+instagram.com##article:has(span:has-text(/^Suggested post$/))
