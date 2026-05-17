@@ -1,7 +1,8 @@
-! Title: Instagram — Feed declutter (v0.4)
+! Title: Instagram — Feed declutter (v0.5)
 ! Description: Redacts non-friend / algorithmic content on Instagram (Suggested
-!  posts, Sponsored ads) by painting it black in place, and hides the Reels
-!  nav tab. Built iteratively against real DOM samples.
+!  posts, Sponsored ads) by painting it black in place, hides the Reels nav
+!  tab, and hides the Explore page's algorithmic grid (search kept). Built
+!  iteratively against real DOM samples.
 ! Last modified: 2026-05-17
 ! Expires: 1 hour
 !
@@ -66,3 +67,18 @@ instagram.com##article:has(span:has-text(/^(Suggested (posts?|for you|reels?|con
 ! number.
 ! ============================================================================
 instagram.com##a[href="/reels/"]:upward(3)
+
+
+! ============================================================================
+! 3. Explore page — algorithmic recommendation grid (search kept)
+! ----------------------------------------------------------------------------
+! On /explore/, <main role="main"> has two children: <nav> (the search box)
+! and a <div> holding the algorithmic tile grid. Every grid tile links to
+! /p/XXXX/?chaining=true — "chaining=true" is Instagram's marker for
+! explore/algorithmic recommendations. Search results, hashtag pages, and
+! profiles use plain /p/XXXX/ URLs WITHOUT it, so anchoring on chaining=true
+! removes only the algorithmic grid and leaves search fully working.
+! We hide the <main>'s direct-child <div> (the grid container), never the
+! <nav>. :matches-path scopes the rule to the Explore page.
+! ============================================================================
+instagram.com##main[role="main"] > div:has(a[href*="chaining=true"]):matches-path(/explore)
