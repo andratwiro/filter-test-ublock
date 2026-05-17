@@ -1,9 +1,10 @@
-! Title: LinkedIn — Feed declutter (v0.5)
-! Description: Hides Promoted/Suggested/Recommended-for-you posts, LinkedIn
-!  Learning course cards, the right-rail banner ad, the "Add to your feed"
-!  follow widget, and the "Try Premium" upsell across both LinkedIn DOM
-!  variants (authenticated React feed + guest/public-post Tailwind feed).
-! Last modified: 2026-05-15
+! Title: LinkedIn — Feed declutter (v0.6)
+! Description: Redacts Promoted/Suggested/Recommended-for-you posts and
+!  LinkedIn Learning course cards (painted black in place), and hides the
+!  right-rail banner ad, the "Add to your feed" follow widget, and the
+!  "Try Premium" upsell. Covers both LinkedIn DOM variants (authenticated
+!  React feed + guest/public-post Tailwind feed).
+! Last modified: 2026-05-17
 ! Expires: 1 hour
 !
 ! ----------------------------------------------------------------------------
@@ -30,6 +31,17 @@
 !                   or base64-URN keys, those rotate per render/post)
 !   - data-id / data-activity-urn  (Variant B)
 !   - visible text via :has-text()
+!
+! Redaction vs. removal:
+!   - FEED POSTS (#2, #3) are NOT removed with display:none. On LinkedIn's
+!     infinite-scroll feed, removing a post collapses layout mid-scroll and
+!     causes scroll-jank. Instead :style() paints the post black in place
+!     (filter: brightness(0)) — the wrapper keeps its exact size, zero
+!     layout shift — and pointer-events:none makes the black block inert.
+!     The result is a visible "redacted" feed.
+!   - SIDEBAR CHROME (#1, #4, #5) has no scroll context, so it is still
+!     removed with display:none — redacting it would just leave permanent
+!     black boxes in the rails.
 
 
 ! ============================================================================
@@ -43,27 +55,30 @@ linkedin.com##iframe[componentkey="MainFeedDesktopNav_feed_ad"]:upward(2)
 
 
 ! ============================================================================
-! 2. Algorithm-injected and sponsored feed cards — Variant A (React)
+! 2. Algorithm-injected and sponsored feed cards — Variant A (React) — REDACTED
 ! ----------------------------------------------------------------------------
 ! All four badge types share the same DOM shape: <span>LABEL</span> inside a
 ! <div role="listitem"> feed wrapper. Single regex covers all four. Exact-match
 ! anchors (^...$) keep this from catching organic posts whose body text
 ! happens to contain one of these words.
+! :upward() selects the post wrapper; :style() paints it black in place
+! (no layout shift, no scroll-jank) and makes it non-interactive.
 ! ============================================================================
-linkedin.com##span:has-text(/^(Promoted|Suggested|Recommended for you|Popular course on LinkedIn Learning)$/):upward(div[role="listitem"])
+linkedin.com##span:has-text(/^(Promoted|Suggested|Recommended for you|Popular course on LinkedIn Learning)$/):upward(div[role="listitem"]):style(filter: brightness(0) !important; pointer-events: none !important)
 
 
 ! ============================================================================
-! 3. Algorithm-injected and sponsored feed cards — Variant B (Tailwind/guest)
+! 3. Algorithm-injected and sponsored feed cards — Variant B (Tailwind) — REDACTED
 ! ----------------------------------------------------------------------------
 ! The badge here is a direct text-node inside <p data-test-id="main-feed-card__header">
 ! (no <span> wrapper, plus surrounding whitespace from indentation). The
 ! data-test-id is the stable hook — that header only appears on injected/
-! sponsored cards. We hide the whole <article data-id="main-feed-card">
-! wrapper. Substring match on the badge text is safe because the regex is
-! gated by the data-test-id, so it can't fire on user post bodies.
+! sponsored cards. Substring match on the badge text is safe because the
+! regex is gated by the data-test-id, so it can't fire on user post bodies.
+! :style() paints the whole <article data-id="main-feed-card"> black in
+! place (no layout shift, no scroll-jank) and makes it non-interactive.
 ! ============================================================================
-linkedin.com##article[data-id="main-feed-card"]:has(> p[data-test-id="main-feed-card__header"]:has-text(/Promoted|Suggested|Recommended for you|Popular course on LinkedIn Learning/))
+linkedin.com##article[data-id="main-feed-card"]:has(> p[data-test-id="main-feed-card__header"]:has-text(/Promoted|Suggested|Recommended for you|Popular course on LinkedIn Learning/)):style(filter: brightness(0) !important; pointer-events: none !important)
 
 
 ! ============================================================================
