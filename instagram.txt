@@ -1,7 +1,7 @@
-! Title: Instagram — Feed declutter (v0.3)
-! Description: Hides non-friend / algorithmic content on Instagram: Suggested
-!  posts, the Reels nav tab, and other feed injections. Built iteratively
-!  against real DOM samples.
+! Title: Instagram — Feed declutter (v0.4)
+! Description: Redacts non-friend / algorithmic content on Instagram (Suggested
+!  posts, Sponsored ads) by painting it black in place, and hides the Reels
+!  nav tab. Built iteratively against real DOM samples.
 ! Last modified: 2026-05-17
 ! Expires: 1 hour
 !
@@ -25,19 +25,34 @@
 !   - Expect higher maintenance than the LinkedIn list — Meta rotates markup
 !     aggressively.
 !
+! Redaction vs. removal:
+!   - Feed injections are NOT removed with display:none. On Instagram's
+!     infinite-scroll feed, removing a post collapses layout mid-scroll,
+!     which fights IG's own scroll/ad-loading JS and causes scroll-jank.
+!   - Instead we use uBO's :style() to paint the post black in place
+!     (filter: brightness(0)) — the <article> keeps its exact size, so
+!     there is zero layout shift. pointer-events:none makes the black block
+!     inert (no accidental taps). The result is a visible "redacted" feed.
+!   - UI chrome (the Reels tab) has no scroll context, so it is still
+!     removed normally with display:none.
+!
 ! ============================================================================
-! 1. "Suggested ..." feed injections
+! 1. "Suggested ..." and "Sponsored" feed injections — REDACTED in place
 ! ----------------------------------------------------------------------------
-! Algorithmic posts/Reels from non-followed accounts. Each feed post is
-! wrapped in <article>; injected ones contain a <span> whose entire text is a
-! "Suggested ..." label ("Suggested post" confirmed; the others — "for you",
-! "Reel(s)", "posts", "content", "account(s)" — are pre-emptive coverage of
-! the label family Instagram is known to use).
+! Each feed post is wrapped in <article>; injected/ad posts contain a <span>
+! whose entire text is the label:
+!   - "Suggested post" confirmed against live DOM; "for you" / "Reel(s)" /
+!     "posts" / "content" / "account(s)" are pre-emptive coverage of the
+!     label family.
+!   - "Sponsored" = actual paid ads. NOT yet confirmed against a sample from
+!     this account — if it mis-fires, report it.
 ! The ^...$ anchors require the <span>'s WHOLE text to be the label, so a
-! friend's caption that merely mentions the phrase is not hidden. /i flag
-! covers casing differences between variants.
+! friend's caption that merely mentions a word is not affected. /i flag
+! covers casing differences.
+! :style() paints the whole <article> black (brightness 0) without removing
+! it — no layout shift, no scroll-jank — and makes it non-interactive.
 ! ============================================================================
-instagram.com##article:has(span:has-text(/^Suggested (posts?|for you|reels?|content|accounts?)$/i))
+instagram.com##article:has(span:has-text(/^(Suggested (posts?|for you|reels?|content|accounts?)|Sponsored)$/i)):style(filter: brightness(0) !important; pointer-events: none !important)
 
 
 ! ============================================================================
