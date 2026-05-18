@@ -1,4 +1,4 @@
-! Title: Instagram — Feed declutter (v0.7)
+! Title: Instagram — Feed declutter (v0.8)
 ! Description: Redacts non-friend / algorithmic content on Instagram (Suggested
 !  posts, Sponsored ads) by painting it black in place, hides the Reels nav
 !  tab, and hides the Explore page's algorithmic grid (search kept). Built
@@ -90,15 +90,16 @@ instagram.com##main[role="main"] > div:has(a[href*="chaining=true"]):matches-pat
 ! 4. "Suggested posts" section after "You've completely caught up" — REDACTED
 ! ----------------------------------------------------------------------------
 ! Once you reach the end of real posts, Instagram appends a whole algorithmic
-! section: a single <h3>Suggested posts</h3> header, then a run of <article>
-! elements (these have NO per-post "Suggested post" label, so rule #1 misses
-! them). The articles are siblings that come AFTER the <div> holding the
-! "caught up" card + the <h3>.
-! We redact every <article> that follows that boundary <div> via the ~
-! sibling combinator. The "You've completely caught up" card and the
-! "Suggested posts" header itself stay visible (they aren't <article>s).
+! section, then a run of <article> elements (these have NO per-post
+! "Suggested post" label, so rule #1 misses them). The articles are siblings
+! that come AFTER the <div> holding the "caught up" card + section header.
+! We anchor on the "You've completely caught up" text — it's a <span> on
+! BOTH desktop and mobile (the section header differs: <h3> on desktop, a
+! plain <span> on mobile, so it can't be the anchor). Then redact every
+! <article> that follows that boundary <div> via the ~ sibling combinator.
+! The caught-up card and header stay visible (they aren't <article>s).
 ! ============================================================================
-instagram.com##div:has(h3:has-text(/^Suggested posts$/)) ~ article:style(background: #000 !important; filter: brightness(0) !important; pointer-events: none !important)
+instagram.com##div:has(span:has-text(/completely caught up/)) ~ article:style(background: #000 !important; filter: brightness(0) !important; pointer-events: none !important)
 
 
 ! ============================================================================
