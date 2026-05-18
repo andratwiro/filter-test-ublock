@@ -1,4 +1,4 @@
-! Title: Instagram — Feed declutter (v0.8)
+! Title: Instagram — Feed declutter (v0.9)
 ! Description: Redacts non-friend / algorithmic content on Instagram (Suggested
 !  posts, Sponsored ads) by painting it black in place, hides the Reels nav
 !  tab, and hides the Explore page's algorithmic grid (search kept). Built
@@ -111,3 +111,21 @@ instagram.com##div:has(span:has-text(/completely caught up/)) ~ article:style(ba
 ! appears in the feed.
 ! ============================================================================
 instagram.com##article:has(a[href*="/ads/ig_redirect"]):style(background: #000 !important; filter: brightness(0) !important; pointer-events: none !important)
+
+
+! ============================================================================
+! 6. Posts from non-followed accounts — REDACTED
+! ----------------------------------------------------------------------------
+! The reliable "non-friend content" signal: Instagram renders a "Follow"
+! button in a post's header ONLY when you do NOT follow that account. Posts
+! from accounts you follow have no such button. So an <article> containing
+! <div role="button">Follow</div> is, by definition, not-from-a-friend.
+! The /^Follow$/ exact match deliberately does NOT match "Following", so a
+! post you've since followed is left alone.
+! This is the broadest rule and overlaps with #1/#4/#5 by design — it
+! catches non-followed posts ANYWHERE in the feed, above or below the
+! "caught up" line, on desktop and mobile, with no fragile sibling logic.
+! Note: a collab post co-authored by a friend + a non-followed account may
+! carry a Follow button and get redacted. If that bothers you, report it.
+! ============================================================================
+instagram.com##article:has(div[role="button"]:has-text(/^Follow$/)):style(background: #000 !important; filter: brightness(0) !important; pointer-events: none !important)
